@@ -25,3 +25,47 @@
         dest: "./loginkey_megaPro.pem"
         mode: 0600
       when: megaProkey_out.changed
+
+    - name: Create Securiry Group for Load Balancer
+      ec2_group:
+        name: megaProELB-sg
+        description: Allow port 80 from everywhere and all port within sg
+        region: "{{region}}"
+        vpc_id: "{{vpcid}}"
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+            rule_desc: allow all on port 80 - Ankit Panjwani
+      register: megaProELBSG_out
+
+    - name: Create Securiry Group for megaProject Stack (EC2 Instances)
+      ec2_group:
+        name: megaProStack-sg
+        description: Allow port 22 from everywhere and all port within sg
+        region: "{{region}}"
+        vpc_id: "{{vpcid}}"
+        purge_rules: no
+        rules:
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            group_id: "{{megaProELBSG_out.group_id}}"
+
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            group_id: "{{BastionSGid}}"
+      register: megaProStackSG_out
+
+    - name: Update Securiry Group with its own sg id
+      ec2_group:
+        name: megaProStack-sg
+        description: Allow port 22 from everywhere and all port within sg
+        region: "{{region}}"
+        vpc_id: "{{vpcid}}"
+        purge_rules: no
+        rules:
+          - proto: all
+            group_id: "{{megaProStackSG_out.group_id}}"  
