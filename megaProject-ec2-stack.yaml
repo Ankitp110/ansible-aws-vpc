@@ -1,0 +1,27 @@
+---
+- name: Setup Vprofile Stack
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Import VPC setup Variable
+      include_vars: vars/output_vars
+
+    - name: Import vprofile setup Variable
+      include_vars: vars/megaProstacksetup
+
+    - name: Importing the VPC setup file for variables like 'region' 
+      include_vars: vars/vpc_setup 
+
+    - name: Create vprofile ec2 key
+      ec2_key:
+        name: megaProkey
+        region: "{{region}}"
+      register: megaProkey_out
+
+    - name: Save private key into file loginkey_vpro.pem
+      copy:
+        content: "{{megaProkey_out.key.private_key}}"
+        dest: "./loginkey_vpro.pem"
+        mode: 0600
+      when: megaProkey_out.changed
