@@ -22,6 +22,6 @@
     - name: Save private key into file loginkey_vpro.pem
       copy:
         content: "{{megaProkey_out.key.private_key}}"
-        dest: "./loginkey_vpro.pem"
+        dest: "./loginkey_megaPro.pem"
         mode: 0600
       when: megaProkey_out.changed
