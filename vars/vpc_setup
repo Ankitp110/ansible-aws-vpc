@@ -24,4 +24,4 @@ state: present
 
 # Bastion setup details
 bastion_ami: ami-0233c2d874b811deb
-MYIP: 157.34.171.103/32
+MYIP: 157.34.165.143/32
